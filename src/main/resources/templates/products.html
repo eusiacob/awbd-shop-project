@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Product list</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-4">
+    <h1 class="mb-4">Products</h1>
+    <div><a href="home">
+        <button class="btn btn-outline-secondary">Go to home</button>
+    </a></div>
+    <div th:if="${#strings.contains(role, 'ROLE_USER')}" class="mt-2 mb-2"><a href="products/favorites">
+        <button class="btn btn-primary">Favorites</button>
+    </a></div>
+
+    <div th:if="${#strings.contains(role, 'ROLE_ADMIN')}">
+        <div class="mt-2 mb-2">
+            <a href="/products/add">
+                <button class="btn btn-success">Add product</button>
+            </a>
+        </div>
+    </div>
+    <!-- Filter form for page size -->
+    <form class="mb-3" method="get" th:action="@{/products}">
+        <input name="page" th:value="${currentPage}" type="hidden"/>
+        <input name="sortField" th:value="${sortField}" type="hidden"/>
+        <input name="sortDir" th:value="${sortDir}" type="hidden"/>
+        <label for="sizeSelect">Products on page:</label>
+        <select class="form-select d-inline w-auto" id="sizeSelect" name="size" onchange="this.form.submit()">
+            <option th:selected="${pageSize == 4}" th:value="4">4</option>
+            <option th:selected="${pageSize == 8}" th:value="8">8</option>
+            <option th:selected="${pageSize == 12}" th:value="12">12</option>
+            <option th:selected="${pageSize == 24}" th:value="24">24</option>
+        </select>
+    </form>
+
+    <!-- Sort -->
+    <div class="mb-3">
+        <span>Sort by: </span>
+        <a class="btn btn-outline-secondary btn-sm"
+           th:href="@{'/products'(page=${currentPage}, size=${pageSize}, sortField='name', sortDir=${sortField == 'name' and sortDir == 'asc' ? 'desc' : 'asc'})}">
+            Name <span th:text="${sortField == 'name' ? (sortDir == 'asc' ? '↑' : '↓') : ''}"></span>
+        </a>
+        <a class="btn btn-outline-secondary btn-sm"
+           th:href="@{'/products'(page=${currentPage}, size=${pageSize}, sortField='price', sortDir=${sortField == 'price' and sortDir == 'asc' ? 'desc' : 'asc'})}">
+            Price <span th:text="${sortField == 'price' ? (sortDir == 'asc' ? '↑' : '↓') : ''}"></span>
+        </a>
+    </div>
+
+    <div class="d-flex flex-wrap">
+        <div class="col-md-3 col-sm-6 col-12 mb-4" th:each="product : ${productPage.content}">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${product.name}"></h5>
+                    <p class="card-text" th:text="${product.description}"></p>
+                    <p class="card-text"><strong>Price:</strong> <span th:text="${product.price} + ' RON'"></span></p>
+                    <p class="card-text"><strong>Category:</strong> <span th:text="${product.category.name}"></span></p>
+                    <p class="card-text"><strong>Distributors:</strong>
+                        <span th:each="distributor : ${product.distributors}"
+                              th:text="${distributor.name + ' '}"></span>
+                    </p>
+
+                    <div th:if="${#strings.contains(role, 'ROLE_USER')}">
+                        <form method="post" th:action="@{'/products/add-to-favorites/' + ${product.id}}">
+                            <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+                            <button class="btn btn-outline-danger w-100 mt-1">❤️ Add to favorites</button>
+                        </form>
+                    </div>
+
+                    <div th:if="${#strings.contains(role, 'ROLE_ADMIN')}">
+                        <a class="btn btn-warning w-100 mb-2"
+                           th:href="@{'/products/edit/' + ${product.id}}">Edit</a>
+                        <form method="post" th:action="@{'/products/delete/' + ${product.id}}">
+                            <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+                            <button class="btn btn-danger w-100">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <nav aria-label="Pagination" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{'/products'(page=${currentPage - 1}, size=${pageSize}, sortField=${sortField}, sortDir=${sortDir})}">Prev</a>
+            </li>
+
+            <li class="page-item" th:classappend="${i == currentPage} ? 'active'"
+                th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                <a class="page-link"
+                   th:href="@{'/products'(page=${i}, size=${pageSize}, sortField=${sortField}, sortDir=${sortDir})}"
+                   th:text="${i + 1}">1</a>
+            </li>
+
+            <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{'/products'(page=${currentPage + 1}, size=${pageSize}, sortField=${sortField}, sortDir=${sortDir})}">Next</a>
+            </li>
+        </ul>
+    </nav>
+
+</div>
+</body>
+</html>
