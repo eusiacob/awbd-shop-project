@@ -104,7 +104,6 @@ public class AppController {
                 : Sort.by(sortField).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<Product> productPage = productRepository.findAll(pageable);
-
         model.addAttribute("productPage", productPage);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", productPage.getTotalPages());
