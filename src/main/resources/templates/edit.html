@@ -41,7 +41,7 @@
             </select>
         </div>
         <div class="form-group">
-            <label class="form-label">Distribuitors</label>
+            <label class="form-label">Distributors</label>
             <select multiple class="form-control" th:field="*{distributors}">
                 <option th:each="distributor : ${distributors}"
                         th:value="${distributor.id}"

@@ -148,6 +148,12 @@ public class ProductController {
         return "redirect:/products";
     }
 
+    @PostMapping("/products/add-to-favorites/{id}")
+    public String addToFavorites(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("successMessage", "Product added to favorites!");
+        return "redirect:/products";
+    }
+
     @PostMapping("/favorites/remove-from-favorites/{id}")
     public String removeFromFavorites(@PathVariable Long id, Authentication authentication, RedirectAttributes redirectAttributes) {
         Product product = productRepository.findById(id).orElseThrow();
