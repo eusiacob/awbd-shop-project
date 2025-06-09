@@ -45,8 +45,7 @@ public class ProductController {
     @Autowired
     private UserRepository userRepository;
 
-    // Rute pentru a adăuga un produs (posibil doar admin)
-    @Secured("ROLE_ADMIN")  // Verificăm că utilizatorul are rolul ROLE_ADMIN
+    @Secured("ROLE_ADMIN")
     @GetMapping("/add")
     public String showAddProductForm(Model model) {
         List<Category> categories = categoryService.findAll();
@@ -54,7 +53,7 @@ public class ProductController {
         model.addAttribute("product", new Product());
         model.addAttribute("categories", categories);
         model.addAttribute("distributors", distributors);
-        return "add";  // View pentru a adăuga un produs
+        return "add";
     }
 
     @Secured("ROLE_ADMIN")
@@ -80,7 +79,6 @@ public class ProductController {
         return "redirect:/products";  // Redirecționează către lista de produse
     }
 
-    // Rute pentru a edita un produs (posibil doar admin)
     @Secured("ROLE_ADMIN")
     @GetMapping("/edit/{id}")
     public String showEditProductForm(@PathVariable Long id, Model model) {
@@ -109,19 +107,18 @@ public class ProductController {
             model.addAttribute("distributors", distributorsForSave);
             return "edit";
         }
-        product.setId(id);  // Asigură-te că ID-ul este setat corect
+        product.setId(id);
         List<Distributor> distributorEntities = distributorService.getDistributorsByIds(distributors);
         product.setDistributors(distributorEntities);
         productService.saveProductWithDistributors(product);
         return "redirect:/products";  // Redirecționează către lista de produse
     }
 
-    // Rute pentru a șterge un produs (posibil doar admin)
     @Secured("ROLE_ADMIN")
     @PostMapping("/delete/{id}")
     public String deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
-        return "redirect:/products";  // Redirecționează către lista de produse
+        return "redirect:/products";
     }
 
     @GetMapping("/favorites")
